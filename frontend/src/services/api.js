@@ -59,3 +59,27 @@ export const getGastosPorCategoria = async (fechaInicio, fechaFinal) => {
         throw error;
     }
 };
+
+export const getIngresosPorCategoria = async (fechaInicio, fechaFinal) => {
+    try {
+        const response = await axios.get(`${API_URL}/ingresosPorCategoria`, {
+            params: { fechaInicio, fechaFinal }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener ingresos por categoría:", error);
+        throw error;
+    }
+};
+
+export const getUsoCategoriasFiltrado = async (fechaInicio, fechaFinal) => {
+    try {
+        const response = await axios.get(`${API_URL}/usoCategoriasFiltrado`, {
+            params: { fechaInicio, fechaFinal }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener el uso de categorías filtrado:", error);
+        throw error;
+    }
+};

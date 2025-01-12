@@ -38,7 +38,7 @@ app.get("/transaccionesFiltradas", async (req, res) => {
     try {
         const { fechaInicio, fechaFinal } = req.query;
 
-        let query = "SELECT * FROM transacciones";
+        let query = ` SELECT t.*, c.nombre AS categoria FROM transacciones t INNER JOIN categorias c ON t.categoria_id = c.id `;
         const values = [];
 
         // Si hay fechas, ajustamos la consulta
@@ -124,6 +124,54 @@ app.get("/gastosPorCategoria", async (req, res) => {
     } catch (err) {
         console.error("Error al obtener los gastos por categoría: ", err.message);
         res.status(500).json({ error: "Ocurrió un error" });
+    }
+});
+
+app.get("/ingresosPorCategoria", async (req, res) => {
+    try {
+        const { fechaInicio, fechaFinal } = req.query;
+
+        let query = `
+            SELECT c.nombre AS categoria, SUM(t.monto) AS total
+            FROM transacciones t
+            INNER JOIN categorias c ON t.categoria_id = c.id
+            WHERE t.tipo = 'ingreso'
+        `;
+
+        const values = [];
+
+        if (fechaInicio && fechaFinal) {
+            query += " AND t.fecha BETWEEN $1 AND $2";
+            values.push(fechaInicio, fechaFinal);
+        }
+
+        query += " GROUP BY c.nombre ORDER BY total DESC;";
+
+        const result = await pool.query(query, values);
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error al obtener los ingresos por categoría: ", err.message);
+        res.status(500).json({ error: "Ocurrió un error" });
+    }
+});
+
+app.get("/usoCategoriasFiltrado", async (req, res) => {
+    try {
+        const { fechaInicio, fechaFinal } = req.query;
+        const query = `
+            SELECT c.nombre AS categoria, COUNT(t.id) AS cantidad
+            FROM transacciones t
+            INNER JOIN categorias c ON t.categoria_id = c.id
+            WHERE t.fecha BETWEEN $1 AND $2
+            GROUP BY c.nombre
+            ORDER BY cantidad DESC;
+        `;
+
+        const result = await pool.query(query, [fechaInicio, fechaFinal]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error al obtener el uso de categorías filtrado: ", err.message);
+        res.status(500).json({ error: "Ocurrió un error al obtener los datos" });
     }
 });
 

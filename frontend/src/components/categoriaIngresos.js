@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Pie } from "react-chartjs-2";
-import { getGastosPorCategoria } from "../services/api";
+import { getIngresosPorCategoria } from "../services/api";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -16,7 +16,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 // Registrar todos los elementos de Chart.js necesarios
 ChartJS.register(ArcElement, Tooltip, Legend, Title, BarElement, CategoryScale, LinearScale, ChartDataLabels);
 
-const CategoriaGastos = ({ fechaInicio, fechaFinal }) => {
+const CategoriaIngresos = ({ fechaInicio, fechaFinal }) => {
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState(null);
   const [chartInstance, setChartInstance] = useState(null);
@@ -25,10 +25,10 @@ const CategoriaGastos = ({ fechaInicio, fechaFinal }) => {
     if (fechaInicio && fechaFinal) {
       const fetchData = async () => {
         try {
-          const gastos = await getGastosPorCategoria(fechaInicio, fechaFinal);
-          setDatos(gastos);
+          const ingresos = await getIngresosPorCategoria(fechaInicio, fechaFinal);
+          setDatos(ingresos);
         } catch (error) {
-          console.error("Error al obtener los datos de gastos: ", error);
+          console.error("Error al obtener los datos de ingresos: ", error);
           setError("Hubo un problema al obtener los datos.");
         }
       };
@@ -42,7 +42,7 @@ const CategoriaGastos = ({ fechaInicio, fechaFinal }) => {
       {
         data: datos ? datos.map((d) => d.total) : [],
         backgroundColor: [
-          "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
+          "#4BC0C0", "#36A2EB", "#FF9F40", "#9966FF", "#FF6384", "#FFCE56",
         ],
       },
     ],
@@ -56,7 +56,7 @@ const CategoriaGastos = ({ fechaInicio, fechaFinal }) => {
       },
       title: {
         display: true,
-        text: "Gastos por Categoría",
+        text: "Ingresos por Categoría",
       },
       datalabels: {
         display: true,
@@ -76,7 +76,7 @@ const CategoriaGastos = ({ fechaInicio, fechaFinal }) => {
 
   return (
     <div>
-      <h3>Gastos por Categoría</h3>
+      <h3>Ingresos por Categoría</h3>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {datos ? (
         <Pie
@@ -98,4 +98,4 @@ const CategoriaGastos = ({ fechaInicio, fechaFinal }) => {
   );
 };
 
-export default CategoriaGastos;
+export default CategoriaIngresos;

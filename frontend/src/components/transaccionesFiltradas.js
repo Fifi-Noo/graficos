@@ -1,60 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getTransaccionesFiltradas } from "../services/api";
 
-const TransaccionesFiltradas = () => {
-    const [fechaInicio, setFechaInicio] = useState("");
-    const [fechaFinal, setFechaFinal] = useState("");
-    const [transacciones, setTransacciones] = useState([]);
+const TransaccionesFiltradas = ({ fechaInicio, fechaFinal }) => {
+  const [transacciones, setTransacciones] = useState([]);
+  const [error, setError] = useState(null); // Añadimos el estado de error
 
-    const handleFiltrar = async () => {
-        if (!fechaInicio || !fechaFinal) {
-            alert("Por favor, selecciona ambas fechas."); // Validación simple
-            return;
-        }
+  useEffect(() => {
+    if (fechaInicio && fechaFinal) {
+      const fetchData = async () => {
         try {
-            const data = await getTransaccionesFiltradas(fechaInicio, fechaFinal);
-            setTransacciones(data);
+          const data = await getTransaccionesFiltradas(fechaInicio, fechaFinal);
+          setTransacciones(data);
         } catch (error) {
-            console.error("Error al filtrar las transacciones: ", error);
+          console.error("Error al filtrar las transacciones: ", error);
+          setError("Hubo un problema al obtener los datos."); // Manejo de error
         }
-    };
+      };
+      fetchData();
+    }
+  }, [fechaInicio, fechaFinal]);
 
-    return (
-        <div>
-            <h2>Filtrar Transacciones por Fecha</h2>
-            <div>
-                <label>
-                    Fecha Inicio:
-                    <input
-                        type="date"
-                        value={fechaInicio}
-                        onChange={(e) => setFechaInicio(e.target.value)}
-                    />
-                </label>
-                <label>
-                    Fecha Final:
-                    <input
-                        type="date"
-                        value={fechaFinal}
-                        onChange={(e) => setFechaFinal(e.target.value)}
-                    />
-                </label>
-                <button onClick={handleFiltrar}>Filtrar</button>
-            </div>
-            <h3>Resultados:</h3>
-            <ul>
-                {transacciones.length > 0 ? (
-                    transacciones.map((transaccion) => (
-                        <li key={transaccion.id}>
-                            {transaccion.tipo} - ${transaccion.monto} - {transaccion.fecha}
-                        </li>
-                    ))
-                ) : (
-                    <p>No se encontraron transacciones en el rango seleccionado.</p>
-                )}
-            </ul>
-        </div>
-    );
+  return (
+    <div>
+      <h3>Resultados de Transacciones Filtradas</h3>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <ul>
+        {transacciones.length > 0 ? (
+          transacciones.map((transaccion) => (
+            <li key={transaccion.id}>
+              {transaccion.tipo} - ${transaccion.monto} - {transaccion.fecha} - {transaccion.categoria}
+            </li>
+          ))
+        ) : (
+          <p>No se encontraron transacciones en el rango seleccionado.</p>
+        )}
+      </ul>
+    </div>
+  );
 };
 
 export default TransaccionesFiltradas;
